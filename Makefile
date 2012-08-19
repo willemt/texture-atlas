@@ -17,6 +17,10 @@ fixedarraylist:
 download-contrib: chashmap fixedarraylist 
 
 main.c:
+	if test -d chashmap_via_linked_list; \
+	then echo have contribs; \
+	else make download-contrib; \
+	fi
 	sh make-tests.sh > main.c
 
 tests: main.c texture_atlas.o test_texture_atlas.c CuTest.c main.c chashmap_via_linked_list/linked_list_hashmap.c fixedarraylist/fixed_arraylist.c 

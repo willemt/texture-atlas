@@ -44,11 +44,16 @@ struct texture_s {
 };
 
 typedef struct {
-    int image_handle;
+    /* for fast retrieval of texture coordinates */
     hashmap_t *textures;
+
     texture_t *root;
+
     /* count how many textures have been inserted */
     int ntextures;
+
+    /* image handle is the texture we manipulate */
+    int texture_handle;
 
     void (*write_pixels_to_texture_cb) (const void *pixels,
 					const rect_t * rect,
@@ -104,7 +109,8 @@ void *ren_texture_atlas_init(int const width,
     at->create_texture_cb = create_texture_cb;
     if (at->create_texture_cb)
     {
-	at->image_handle = at->create_texture_cb(tex->rect.w, tex->rect.h);
+	at->texture_handle =
+	    at->create_texture_cb(tex->rect.w, tex->rect.h);
     }
 
     return at;
@@ -142,11 +148,13 @@ static texture_t *__insert(texture_t * tex, const int w, const int h,
 	if ((new = __insert(tex->kids[0], w, h, id)))
 	{
 	    return new;
-	} else
+	}
+	else
 	{
 	    return __insert(tex->kids[1], w, h, id);
 	}
-    } else
+    }
+    else
     {
 	/*  fits perfectly */
 	if (tex->rect.w == w && tex->rect.h == h)
@@ -162,7 +170,8 @@ static texture_t *__insert(texture_t * tex, const int w, const int h,
 //            printf("doesn't fit, %d %d %d %d\n", tex->rect.w, w, tex->rect.h, h);
 //            assert(0);
 	    return NULL;
-	} else
+	}
+	else
 	{
 	    assert(!tex->kids[0]);
 	    assert(!tex->kids[1]);
@@ -182,7 +191,8 @@ static texture_t *__insert(texture_t * tex, const int w, const int h,
 		tex->kids[1]->rect.y = tex->rect.y;
 		tex->kids[1]->rect.w = tex->rect.w - w;
 		tex->kids[1]->rect.h = tex->rect.h;
-	    } else
+	    }
+	    else
 	    {
 		tex->kids[0]->rect.x = tex->rect.x;
 		tex->kids[0]->rect.y = tex->rect.y;
@@ -201,10 +211,14 @@ static texture_t *__insert(texture_t * tex, const int w, const int h,
 
 /**
  * Write pixels to atlas, return the 'virtual texture id'
- * @return 'virtual texture id'
+ * @param att texture atlas
+ * @param pixel_data pixels to write to texture
+ * @param w width of pixel data
+ * @param h height of pixel data
+ * @return 'virtual texture id', otherwise 0 if there wasn't space on the atlas
  */
 int ren_texture_atlas_push_pixels(void *att,
-				  const void *pixel_data, int w, int h)
+				  const void *pixel_data, const int w, const int h)
 {
     texture_t *tex;
 
@@ -216,6 +230,7 @@ int ren_texture_atlas_push_pixels(void *att,
 
     new_id = at->ntextures + 1;
 
+    /* find a new slot on texture atlas */
     if (!(tex = __insert(at->root, w, h, new_id)))
     {
 	assert(false);
@@ -224,10 +239,11 @@ int ren_texture_atlas_push_pixels(void *att,
 
     hashmap_put(at->textures, (void *) new_id, (void *) tex);
 
+    /* put these pixels onto the texture */
     if (at->write_pixels_to_texture_cb)
     {
 	at->write_pixels_to_texture_cb(pixel_data, &tex->rect,
-				       at->image_handle);
+				       at->texture_handle);
     }
 
     at->ntextures += 1;
@@ -237,6 +253,8 @@ int ren_texture_atlas_push_pixels(void *att,
 
 /**
  * Remove texture from atlas using filename
+ * @param att texture atlas
+ * @param fname filename of image
  */
 void ren_texture_atlas_remove_file(void *att, const char *fname)
 {
@@ -248,7 +266,8 @@ void ren_texture_atlas_remove_file(void *att, const char *fname)
 }
 
 /**
- * Remove texture based off texture ID */
+ * Remove texture based off texture ID
+ * @param att texture atlas */
 void ren_texture_atlas_remove_texid(void *att, const unsigned long texid)
 {
     //@TODO
@@ -257,6 +276,7 @@ void ren_texture_atlas_remove_texid(void *att, const unsigned long texid)
 }
 
 /**
+ * @param att texture atlas 
  * @return true if atlas contains texture id, otherwise false */
 int ren_texture_atlas_contains_texid(const void *att,
 				     const unsigned long texid)
@@ -267,9 +287,10 @@ int ren_texture_atlas_contains_texid(const void *att,
 }
 
 /**
- * Get coordiantes using texture id
+ * Get coordinates using texture id
+ * @param att texture atlas 
  */
-int ren_texture_atlas_get_coords_from_texid(void *att,
+void ren_texture_atlas_get_coords_from_texid(void *att,
 					    const unsigned long texid,
 					    vec2_t begin, vec2_t end)
 {
@@ -287,19 +308,20 @@ int ren_texture_atlas_get_coords_from_texid(void *att,
     vec2Copy(begin, end);
     end[0] += (float) tex->rect.w / at->root->rect.w;
     end[1] += (float) tex->rect.h / at->root->rect.h;
-    return 0;
 }
 
 /**
+ * @param att texture atlas 
  * @return texture id */
 int ren_texture_atlas_get_texture(void *att)
 {
     const atlas_t *at = att;
 
-    return at->image_handle;
+    return at->texture_handle;
 }
 
 /**
+ * @param att texture atlas 
  * @return number of textures */
 int ren_texture_atlas_get_ntextures(void *att)
 {

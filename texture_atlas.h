@@ -29,7 +29,7 @@ int ren_texture_atlas_contains_texid(
     const unsigned long texid
 );
 
-int ren_texture_atlas_get_coords_from_texid(
+void ren_texture_atlas_get_coords_from_texid(
     const void* att,
     const unsigned long texid,
     vec2_t begin,

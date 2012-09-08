@@ -25,6 +25,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include "tea_vec.h"
+#include "texture_atlas.h"
 
 #include "CuTest.h"
 
@@ -36,7 +37,8 @@ void TestTextureAtlas_PushImage(
     CuTest * tc
 )
 {
-    int at, texid;
+    void* at;
+    int texid;
 
     at = ren_texture_atlas_init(WIDTH, NULL, NULL);
     CuAssertTrue(tc, 0 == ren_texture_atlas_get_ntextures(at));
@@ -49,7 +51,8 @@ void TestTextureAtlas_ContainsTexid(
     CuTest * tc
 )
 {
-    int at, texid = 0;
+    void* at;
+    int texid = 0;
 
     at = ren_texture_atlas_init(WIDTH, NULL, NULL);
     CuAssertTrue(tc, !ren_texture_atlas_contains_texid(at, texid));
@@ -62,7 +65,8 @@ void TestTextureAtlas_PushImageNonZeroTexID(
     CuTest * tc
 )
 {
-    int at, texid;
+    void* at;
+    int texid;
 
     at = ren_texture_atlas_init(WIDTH, NULL, NULL);
 
@@ -74,7 +78,8 @@ void TestTextureAtlas_PushImageGetImage(
     CuTest * tc
 )
 {
-    int at, texid;
+    void* at;
+    int texid;
 
     vec2_t offset, extent;
 
@@ -92,7 +97,8 @@ void TestTextureAtlas_PushImageGetImage2(
     CuTest * tc
 )
 {
-    int at, texid;
+    void* at;
+    int texid;
 
     vec2_t offset, extent;
 

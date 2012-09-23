@@ -56,10 +56,12 @@ typedef struct {
     /* image handle is the texture we manipulate */
     int texture_handle;
 
+    /* call back for writing pixels to texture handle */
     void (*write_pixels_to_texture_cb) (const void *pixels,
 					const rect_t * rect,
 					const unsigned int texture);
 
+    /* call back for creating texture handle */
     int (*create_texture_cb) (const int w, const int h);
 } atlas_t;
 
@@ -136,8 +138,8 @@ static void __print(texture_t * tex, int depth)
 #endif
 }
 
-    static texture_t *__insert(texture_t * tex,
-			       const int w, const int h, const int id)
+static texture_t *__insert(texture_t * tex,
+			   const int w, const int h, const int id)
 {
     assert(tex);
 
@@ -175,15 +177,19 @@ static void __print(texture_t * tex, int depth)
 	{
 	    return NULL;
 	}
+	/* space to fit, but we need to sub-divide */
 	else
 	{
 	    int dw, dh;
 
 	    assert(!tex->kids[0]);
 	    assert(!tex->kids[1]);
+
+	    /* alloc memory for sub-divisions */
 	    tex->kids[0] = calloc(1, sizeof(texture_t));
 	    tex->kids[1] = calloc(1, sizeof(texture_t));
 
+	    /* create sub-divisions */
 	    dw = tex->rect.w - w;
 	    dh = tex->rect.h - h;
 	    if (dh < dw)
@@ -209,6 +215,7 @@ static void __print(texture_t * tex, int depth)
 		tex->kids[1]->rect.h = tex->rect.h - h;
 	    }
 
+	    /* insert at the sub-division which is now the perfect size */
 	    return __insert(tex->kids[0], w, h, id);
 	}
     }
@@ -223,8 +230,8 @@ static void __print(texture_t * tex, int depth)
  * @return 'virtual texture id', otherwise 0 if there wasn't space on the atlas
  */
 int ren_texture_atlas_push_pixels(void *att,
-				  const void *pixel_data, const int w,
-				  const int h)
+				  const void *pixel_data,
+				  const int w, const int h)
 {
     texture_t *tex;
 
@@ -296,6 +303,9 @@ int ren_texture_atlas_contains_texid(const void *att,
 /**
  * Get coordinates using texture id
  * @param att texture atlas 
+ * @param texid texture on texture atlas
+ * @param begin start texture coordinates
+ * @param end end texture coordinates
  */
 void ren_texture_atlas_get_coords_from_texid(void *att,
 					     const unsigned long texid,
@@ -319,7 +329,7 @@ void ren_texture_atlas_get_coords_from_texid(void *att,
 
 /**
  * @param att texture atlas 
- * @return texture id */
+ * @return texture handle */
 int ren_texture_atlas_get_texture(void *att)
 {
     const atlas_t *at = att;

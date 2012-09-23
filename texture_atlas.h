@@ -1,3 +1,6 @@
+#ifndef TEXTURE_ATLAS_H
+#define TEXTURE_ATLAS_H
+
 void* ren_texture_atlas_init(
     int width,
     void (*write_pixels_to_texture) (const void *pixels,
@@ -43,3 +46,5 @@ int ren_texture_atlas_get_texture(
 int ren_texture_atlas_get_ntextures(
     const void* att
 );
+
+#endif

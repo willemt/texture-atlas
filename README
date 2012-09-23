@@ -1,0 +1,105 @@
+texture_atlas.c(3)                                                                                  texture_atlas.c(3)
+
+
+
+NAME
+       texture_atlas.c -
+
+       A texture atlas for storing multiple textures efficiently for graphics libraries like OpenGL.
+
+
+SYNOPSIS
+       #include <stdio.h>
+       #include <stdlib.h>
+       #include <stdbool.h>
+       #include <assert.h>
+       #include 'tea_vec.h'
+       #include 'linked_list_hashmap.h'
+       #include 'fixed_arraylist.h'
+
+
+   Data Structures
+       struct texture_s
+       struct atlas_t
+
+   Typedefs
+       typedef struct texture_s texture_t
+
+   Functions
+       void * ren_texture_atlas_init (int const width, void(*write_pixels_to_texture)(const void *pixels, const rect_t
+           *rect, const unsigned inttexture), int(*create_texture_cb)(const int w, const int h))
+       int ren_texture_atlas_push_pixels (void *att, const void *pixel_data, const int w, const int h)
+       void ren_texture_atlas_remove_file (void *att, const char *fname)
+       void ren_texture_atlas_remove_texid (void *att, const unsigned long texid)
+       int ren_texture_atlas_contains_texid (const void *att, const unsigned long texid)
+       void ren_texture_atlas_get_coords_from_texid (void *att, const unsigned long texid, vec2_t begin, vec2_t end)
+       int ren_texture_atlas_get_texture (void *att)
+       int ren_texture_atlas_get_ntextures (void *att)
+
+Detailed Description
+       A texture atlas for storing multiple textures efficiently for graphics libraries like OpenGL.
+
+
+
+Function Documentation
+   int ren_texture_atlas_contains_texid (const void *att, const unsigned longtexid) Parameters:
+           att texture atlas
+
+       Returns:
+           true if atlas contains texture id, otherwise false
+
+   void ren_texture_atlas_get_coords_from_texid (void *att, const unsigned longtexid, vec2_tbegin, vec2_tend) Get
+       coordinates using texture id
+       Parameters:
+           att texture atlas
+           texid texture on texture atlas
+           begin start texture coordinates
+           end end texture coordinates
+
+   int ren_texture_atlas_get_ntextures (void *att) Parameters:
+           att texture atlas
+
+       Returns:
+           number of textures
+
+   int ren_texture_atlas_get_texture (void *att) Parameters:
+           att texture atlas
+
+       Returns:
+           texture handle
+
+   void* ren_texture_atlas_init (int constwidth, void(*)(const void *pixels, const rect_t *rect, const unsigned
+       inttexture)write_pixels_to_texture, int(*)(const int w, const int h)create_texture_cb) Create a texture atlas.
+       Parameters:
+           width The size of this atlas
+           write_pixels_to_texture Callback for writing pixels to the atlas
+           create_texture_cb Callback for creating a new texture
+
+       Returns:
+           a pointer to the newly allocated texture atlas
+
+   int ren_texture_atlas_push_pixels (void *att, const void *pixel_data, const intw, const inth) Write pixels to
+       atlas, return the 'virtual texture id'
+       Parameters:
+           att texture atlas
+           pixel_data pixels to write to texture
+           w width of pixel data
+           h height of pixel data
+
+       Returns:
+
+   void ren_texture_atlas_remove_file (void *att, const char *fname) Remove texture from atlas using filename
+       Parameters:
+           att texture atlas
+           fname filename of image
+
+   void ren_texture_atlas_remove_texid (void *att, const unsigned longtexid) Remove texture based off texture ID
+       Parameters:
+           att texture atlas
+
+Author
+       Generated automatically by Doxygen for TextureAtlas from the source code.
+
+
+
+TextureAtlas                                        Sun Sep 23 2012                                 texture_atlas.c(3)

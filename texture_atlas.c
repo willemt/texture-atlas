@@ -27,6 +27,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+/**
+ * @file texture_atlas.c
+ * @brief A texture atlas for storing multiple textures efficiently for graphics libraries like OpenGL
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>

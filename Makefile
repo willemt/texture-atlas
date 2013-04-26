@@ -1,34 +1,35 @@
+CONTRIB_DIR = ..
+HASHMAP_DIR = $(CONTRIB_DIR)/CHashMapViaLinkedList
+
+GCOV_OUTPUT = *.gcda *.gcno *.gcov 
+GCOV_CCFLAGS = -fprofile-arcs -ftest-coverage
 SHELL  = /bin/bash
 CC     = gcc
-
+CCFLAGS = -g -O2 -Wall -Werror -W -fno-omit-frame-pointer -fno-common -fsigned-char $(GCOV_CCFLAGS) -I$(HASHMAP_DIR)
 
 all: tests
 
 chashmap:
-	mkdir -p chashmap_via_linked_list/.git
-	git --git-dir=chashmap_via_linked_list/.git init 
-	pushd chashmap_via_linked_list; git pull git@github.com:willemt/CHashMapViaLinkedList.git; popd
+	mkdir -p $(HASHMAP_DIR)/.git
+	git --git-dir=$(HASHMAP_DIR)/.git init 
+	pushd $(HASHMAP_DIR); git pull git@github.com:willemt/CHashMapViaLinkedList.git; popd
 
-fixedarraylist:
-	mkdir -p fixedarraylist/.git
-	git --git-dir=fixedarraylist/.git init 
-	pushd fixedarraylist; git pull git@github.com:willemt/CFixedArraylist.git; popd
-
-download-contrib: chashmap fixedarraylist 
+download-contrib: chashmap
 
 main.c:
-	if test -d chashmap_via_linked_list; \
+	if test -d $(HASHMAP_DIR); \
 	then echo have contribs; \
 	else make download-contrib; \
 	fi
 	sh make-tests.sh > main.c
 
-tests: main.c texture_atlas.o test_texture_atlas.c CuTest.c main.c chashmap_via_linked_list/linked_list_hashmap.c fixedarraylist/fixed_arraylist.c 
-	$(CC) -g -o $@ $^
+tests: main.c texture_atlas.o test_texture_atlas.c CuTest.c main.c $(HASHMAP_DIR)/linked_list_hashmap.c 
+	$(CC) $(CCFLAGS) -o $@ $^
 	./tests
+	gcov main.c test_texture_atlas.c texture_atlas.c
 
 texture_atlas.o: texture_atlas.c 
-	$(CC) -g -c -Ichashmap_via_linked_list -Ifixedarraylist -o $@ $^
+	$(CC) $(CCFLAGS) -c -o $@ $^
 
 clean:
-	rm -f main.c texture_atlas.o tests
+	rm -f main.c texture_atlas.o tests $(GCOV_OUTPUT)

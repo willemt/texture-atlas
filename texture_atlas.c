@@ -38,7 +38,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assert.h>
 #include "tea_vec.h"
 #include "linked_list_hashmap.h"
-#include "fixed_arraylist.h"
 
 typedef struct texture_s texture_t;
 
@@ -112,7 +111,7 @@ void *ren_texture_atlas_init(int const width,
     tex->rect.y = 0;
     tex->rect.w = width;
     tex->rect.h = width;
-    at->textures = hashmap_new(__ulong_hash, __ulong_compare);
+    at->textures = hashmap_new(__ulong_hash, __ulong_compare, 11);
     at->write_pixels_to_texture_cb = write_pixels_to_texture;
     at->create_texture_cb = create_texture_cb;
     if (at->create_texture_cb)
@@ -126,9 +125,9 @@ void *ren_texture_atlas_init(int const width,
 
 /*----------------------------------------------------------------------------*/
 
+#if 0
 static void __print(texture_t * tex, int depth)
 {
-#if 0
     if (!tex)
 	return;
     int ii;
@@ -140,8 +139,8 @@ static void __print(texture_t * tex, int depth)
 	 tex->rect.x, tex->rect.y, tex->rect.w, tex->rect.h, tex->id);
     __print(tex->kids[0], depth + 1);
     __print(tex->kids[1], depth + 1);
-#endif
 }
+#endif
 
 static texture_t *__insert(texture_t * tex,
 			   const int w, const int h, const int id)
@@ -247,12 +246,11 @@ int ren_texture_atlas_push_pixels(void *att,
     assert(at);
 
     new_id = at->ntextures + 1;
-    __print(at->root, 0);
+    //__print(at->root, 0);
 
     /* find a new slot on texture atlas */
     if (!(tex = __insert(at->root, w, h, new_id)))
     {
-	assert(false);
 	return 0;
     }
 
@@ -275,6 +273,7 @@ int ren_texture_atlas_push_pixels(void *att,
  * @param att texture atlas
  * @param fname filename of image
  */
+#if 0
 void ren_texture_atlas_remove_file(void *att, const char *fname)
 {
     atlas_t *at = att;
@@ -283,16 +282,19 @@ void ren_texture_atlas_remove_file(void *att, const char *fname)
 
     assert(false);
 }
+#endif
 
 /**
  * Remove texture based off texture ID
  * @param att texture atlas */
+#if 0
 void ren_texture_atlas_remove_texid(void *att, const unsigned long texid)
 {
     //@TODO
 
     assert(false);
 }
+#endif
 
 /**
  * @param att texture atlas 

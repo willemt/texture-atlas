@@ -15,12 +15,28 @@
 
 #define WIDTH 512
 
+static void write_pixels_to_texture(
+        const void *pixels __attribute__((__unused__)),
+        const rect_t * rect __attribute__((__unused__)),
+        const unsigned int texture __attribute__((__unused__))
+)
+{
+
+}
+
+static int create_texture_cb (
+        const int w __attribute__((__unused__)),
+        const int h __attribute__((__unused__))
+)
+{
+    return 1;
+}
+
 void TestTextureAtlas_PushImage(
     CuTest * tc
 )
 {
     void* at;
-    int texid;
 
     at = ren_texture_atlas_init(WIDTH, NULL, NULL);
     CuAssertTrue(tc, 0 == ren_texture_atlas_get_ntextures(at));
@@ -28,6 +44,17 @@ void TestTextureAtlas_PushImage(
     ren_texture_atlas_push_pixels(at, NULL, 32, 32);
     CuAssertTrue(tc, 1 == ren_texture_atlas_get_ntextures(at));
 }
+
+void TestTextureAtlas_GetTextureID(
+    CuTest * tc
+)
+{
+    void* at;
+
+    at = ren_texture_atlas_init(WIDTH, write_pixels_to_texture, create_texture_cb);
+    CuAssertTrue(tc, 1 == ren_texture_atlas_get_texture(at));
+}
+
 
 void TestTextureAtlas_ContainsTexid(
     CuTest * tc
@@ -42,6 +69,20 @@ void TestTextureAtlas_ContainsTexid(
     texid = ren_texture_atlas_push_pixels(at, NULL, 32, 32);
     CuAssertTrue(tc, ren_texture_atlas_contains_texid(at, texid));
 }
+
+void TestTextureAtlas_DoesntPushPixelsWhenNoSpace(
+    CuTest * tc
+)
+{
+    void* at;
+    int texid = 0;
+
+    at = ren_texture_atlas_init(32, NULL, NULL);
+    texid = ren_texture_atlas_push_pixels(at, NULL, 32, 32);
+    CuAssertTrue(tc, ren_texture_atlas_contains_texid(at, texid));
+    CuAssertTrue(tc, 0 == ren_texture_atlas_push_pixels(at, NULL, 32, 32));
+}
+
 
 void TestTextureAtlas_PushImageNonZeroTexID(
     CuTest * tc
